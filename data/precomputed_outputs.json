@@ -1,0 +1,31 @@
+{
+  "_comment": "Pre-computed outputs for Lab 5. Use if Ollama unavailable.",
+
+  "merge_intervals_v1": {
+    "prompt_summary": "Basic: implement merge_intervals with spec + examples",
+    "generated_code": "def merge_intervals(intervals):\n    if not intervals:\n        return []\n    intervals.sort(key=lambda x: x[0])\n    merged = [intervals[0]]\n    for start, end in intervals[1:]:\n        if start <= merged[-1][1]:\n            merged[-1][1] = max(merged[-1][1], end)\n        else:\n            merged.append([start, end])\n    return merged",
+    "test_results": "8 passed, 0 failed",
+    "note": "This is a common correct solution. The model often gets this right on first try for well-specified prompts."
+  },
+
+  "merge_intervals_v1_weak": {
+    "prompt_summary": "Weak prompt: just 'implement merge_intervals'",
+    "generated_code": "def merge_intervals(intervals):\n    result = []\n    for interval in intervals:\n        merged = False\n        for i, existing in enumerate(result):\n            if interval[0] <= existing[1] and interval[1] >= existing[0]:\n                result[i] = [min(existing[0], interval[0]), max(existing[1], interval[1])]\n                merged = True\n                break\n        if not merged:\n            result.append(interval)\n    return sorted(result)",
+    "test_results": "6 passed, 2 failed (fails on chained overlaps)",
+    "note": "Without sorting first, chained overlaps like [[1,3],[2,5],[4,8]] fail — merges first two but misses the chain."
+  },
+
+  "find_second_largest_tests": {
+    "ai_generated_tests": "import pytest\nfrom taskflow.stats import find_second_largest\n\ndef test_basic():\n    assert find_second_largest([3, 1, 4, 1, 5, 9]) == 5\n\ndef test_two_elements():\n    assert find_second_largest([1, 2]) == 1\n\ndef test_duplicates():\n    assert find_second_largest([10, 10, 5]) == 5\n\ndef test_negative():\n    assert find_second_largest([-1, -5, -3]) == -3\n\ndef test_large_list():\n    assert find_second_largest(list(range(100))) == 98\n\ndef test_single_value_raises():\n    with pytest.raises(ValueError):\n        find_second_largest([5, 5, 5])\n\ndef test_empty_raises():\n    with pytest.raises(ValueError):\n        find_second_largest([])",
+    "note": "Model typically generates 5-7 tests. Common omissions: single element list, very large numbers, mixed positive/negative."
+  },
+
+  "refactored_find_second_largest": {
+    "code": "def find_second_largest(numbers: list[int]) -> int:\n    if len(set(numbers)) < 2:\n        raise ValueError(\"Need at least 2 unique values\")\n    first = second = float('-inf')\n    for n in numbers:\n        if n > first:\n            second = first\n            first = n\n        elif n > second and n != first:\n            second = n\n    return second",
+    "note": "O(n) single-pass. Common model error: forgetting n != first check, causing duplicates to update second."
+  },
+
+  "refactored_format_task_summary": {
+    "code": "def format_task_summary(task: dict) -> str:\n    priority = task.get('priority', 'medium').upper()\n    title = task.get('title', 'Untitled Task')\n    assignee = task.get('assignee', 'Unassigned')\n    status = task.get('status', 'open')\n    due_date = task.get('due_date')\n\n    lines = [\n        f'[{priority}] {title}',\n        f'Assigned to: {assignee}',\n        f'Status: {status}',\n    ]\n    if due_date is not None:\n        lines.append(f'Due: {due_date}')\n\n    return '\\n'.join(lines)"
+  }
+}
